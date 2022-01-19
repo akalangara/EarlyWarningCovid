@@ -1,0 +1,16 @@
+---
+title: "Examine Missing Data"
+subtitle: "State and County Initial Data"
+output:
+     xaringan::moon_reader:
+     lib_dir: libs
+nature:
+     highlightStyle: github
+countIncrementalSlides: false
+---
+     
+     One slide.
+
+---
+     
+     Another slide.
