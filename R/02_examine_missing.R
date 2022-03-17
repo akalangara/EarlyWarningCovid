@@ -6,8 +6,8 @@ library(plotly)
 
 #### LOAD DATASETS ####
 here::i_am('R/02_examine_missing.R')
-sub_state <- readRDS(here::here("Processed_Data", "sub_state.rds"))
-sub_county <- readRDS(here::here("Processed_Data", "sub_county.rds"))
+sub_state <- readRDS(here::here("Processed_Data", "01_sub_state.rds"))
+sub_county <- readRDS(here::here("Processed_Data", "01_sub_county.rds"))
 
 
 
@@ -35,7 +35,9 @@ make_pies <- function(x) {
                                textinfo = 'label+percent',
                                insidetextfont = list(color = '#FFFFFF'),
                                hoverinfo = 'text',
-                               text = ~paste(unclass.counts., '/', total),
+                               text = ~paste(formatC(unclass.counts.,format="d", big.mark=","), 
+                                             '/', 
+                                             formatC(total,format="d", big.mark=",")),
                                marker = list(colors = colors,
                                              line = list(color = '#FFFFFF', 
                                                          width = 1)),
@@ -58,9 +60,9 @@ graph_state <- function(x){
                 ggplot(aes(x = sub_date, y = prop_cases*100, colour = age_group,
                            text = paste(
                                    "State: ", res_state, "\n",
-                                   "Month: ", sub_date, "\n",
+                                   "Month: ", format(sub_date, "%Y-%m"), "\n",
                                    "Age Group: ", age_group, "\n",
-                                   "Case Count: ", case_n, "\n",
+                                   "Case Count: ", formatC(case_n,format="d", big.mark=","), "\n",
                                    "% of Cases: ", round((prop_cases*100),digits = 0), "%\n",
                                    sep = ""
                            ))) + 
@@ -74,21 +76,6 @@ graph_state <- function(x){
         return(age_prop_scatter_xx)
 }
         
-create_buttons <- function(df, y_axis_var_names) {
-        lapply(y_axis_var_names,
-                FUN = function(var_name, df) {
-                        button <- list(
-                                method = 'restyle',
-                                args = list('y', list(df[, var_name])),
-                                label = sprintf('Show %s', var_name)
-                        )
-                },
-                df
-        )
-        
-}
-
-
 
 #### EXAMINE MISSING DATA STATE ####
 ## some states don't list conf_death and conf_cases
@@ -131,6 +118,7 @@ county_pies <- sapply(county_missing, FUN=make_pies)
 ## get rid of null pies (100% complete)
 county_pies <- county_pies[!sapply(county_pies,is.null)]
 
+#### COUNTY LEVEL DATA AT STATE LEVEL ####
 # drop cases where state is NA
 sub_county_clean <- sub_county_clean %>%
                     filter(!(is.na(res_state)))
@@ -146,8 +134,8 @@ NA_scatter <- age_prop_NAs %>%
         ggplot(aes(x = sub_date, y = prop_cases*100, 
                    text = paste(
                            "State: ", res_state, "\n",
-                           "Month: ", sub_date, "\n",
-                           "NA Case Count: ", case_n, "\n",
+                           "Month: ", format(sub_date, "%Y-%m"), "\n",
+                           "NA Case Count: ", formatC(case_n,format="d", big.mark=","), "\n",
                            "% NA: ", round((prop_cases*100),digits = 0), "%\n",
                            sep = ""
                    ))) + 
@@ -169,7 +157,7 @@ age_prop_dropNA <- sub_county_clean %>% group_by(res_state, sub_date, age_group)
         filter(!(is.na(age_group))) %>%
         group_by(res_state, sub_date) %>%
         mutate(prop_cases = case_n / sum(case_n)) %>%
-        arrange(res_state, sub_date)
+        arrange(res_state, sub_date) %>%
         ungroup()
 
 ## look at proportion for each age group throughout time
@@ -178,9 +166,9 @@ age_prop_scatter <- age_prop_dropNA %>%
         ggplot(aes(x = sub_date, y = prop_cases*100, colour = age_group,
                    text = paste(
                            "State: ", res_state, "\n",
-                           "Month: ", sub_date, "\n",
+                           "Month: ", format(sub_date, "%Y-%m"), "\n",
                            "Age Group: ", age_group, "\n",
-                           "Case Count: ", case_n, "\n",
+                           "Case Count: ", formatC(case_n,format="d", big.mark=","), "\n",
                            "% of Cases: ", round((prop_cases*100),digits = 0), "%\n",
                            sep = ""
                    ))) + 
@@ -201,18 +189,18 @@ CA <- graph_state("CA")
 NY <- graph_state("NY")
 
 #### EXPORTING CHARTS AND CLEANED DATA ####
-saveRDS(sub_state_clean, here::here("Processed_Data", "sub_state_clean.rds"))
-saveRDS(age_prop_dropNA, here::here("Processed_Data", "age_prop_dropNA.rds"))
+saveRDS(sub_state_clean, here::here("Processed_Data", "02_sub_state_clean.rds"))
+saveRDS(age_prop_dropNA, here::here("Processed_Data", "02_age_prop_dropNA.rds"))
 
-saveRDS(state_pies, here::here("Exploratory_Analysis", "state_pies.rds"))
-saveRDS(county_pies, here::here("Exploratory_Analysis", "county_pies.rds"))
+saveRDS(state_pies, here::here("Exploratory_Analysis", "02_state_pies.rds"))
+saveRDS(county_pies, here::here("Exploratory_Analysis", "02_county_pies.rds"))
 
-saveRDS(NA_scatter, here::here("Exploratory_Analysis", "NA_scatter.rds"))
+saveRDS(NA_scatter, here::here("Exploratory_Analysis", "02_NA_scatter.rds"))
 
-saveRDS(age_prop_scatter, here::here("Exploratory_Analysis", "age_prop_scatter.rds"))
-saveRDS(age_prop_scatter_MO, here::here("Exploratory_Analysis", "age_prop_scatter_MO.rds"))
-saveRDS(age_prop_scatter_OR, here::here("Exploratory_Analysis", "age_prop_scatter_OR.rds"))
-saveRDS(age_prop_scatter_TN, here::here("Exploratory_Analysis", "age_prop_scatter_TN.rds"))
-saveRDS(age_prop_scatter_TX, here::here("Exploratory_Analysis", "age_prop_scatter_TX.rds"))
-saveRDS(age_prop_scatter_CA, here::here("Exploratory_Analysis", "age_prop_scatter_CA.rds"))
-saveRDS(age_prop_scatter_NY, here::here("Exploratory_Analysis", "age_prop_scatter_NY.rds"))
+saveRDS(age_prop_scatter, here::here("Exploratory_Analysis", "02_age_prop_scatter.rds"))
+saveRDS(MO, here::here("Exploratory_Analysis", "02_age_prop_scatter_MO.rds"))
+saveRDS(OR, here::here("Exploratory_Analysis", "02_age_prop_scatter_OR.rds"))
+saveRDS(TN, here::here("Exploratory_Analysis", "02_age_prop_scatter_TN.rds"))
+saveRDS(TX, here::here("Exploratory_Analysis", "02_age_prop_scatter_TX.rds"))
+saveRDS(CA, here::here("Exploratory_Analysis", "02_age_prop_scatter_CA.rds"))
+saveRDS(NY, here::here("Exploratory_Analysis", "02_age_prop_scatter_NY.rds"))
