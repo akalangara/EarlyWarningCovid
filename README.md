@@ -15,4 +15,4 @@ The project uses the `here` package which requires the same folder structure as 
 The analysis is conducted in steps utilizing separate R scripts located in the `R` directory. Prior to running each of the scripts, set the directory to file location. This will ensure that the `here` package works properly. Analysis can be done by running the scripts in the order of number. As noted, scripts will generate files in the `Exploratory_Analysis` and `Processed_Data` directories which are currently empty.
 
 **Note: Due to file size, `COVID-19_Case_Surveillance_Public_Use_Data_with_Geography.csv` is not present in the `Raw_Data` directory. 
-This data can be downloaded here [here](https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data-with-Ge/n8mc-b4w4).
+This data can be downloaded here [here](https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data-with-Ge/n8mc-b4w4). To reduce file size download, it is advised that the API is used to only download data that is relevant to the project time period of focus (2021-04-19 to 2021-10-31)
